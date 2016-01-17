@@ -200,6 +200,7 @@ class TaskBase(evil):
 		"""
 		m = self.master
 		if m.stop:
+			m.sema.release()
 			m.out.put(self)
 			return
 
@@ -221,6 +222,7 @@ class TaskBase(evil):
 
 			# TODO cleanup
 			m.error_handler(self)
+			m.sema.release()
 			m.out.put(self)
 			return
 
@@ -240,6 +242,7 @@ class TaskBase(evil):
 		if self.hasrun != SUCCESS:
 			m.error_handler(self)
 
+		m.sema.release()
 		m.out.put(self)
 
 	def run(self):
