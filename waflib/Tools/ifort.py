@@ -556,7 +556,7 @@ def exec_command_ifort(self, *k, **kw):
 
 
 	if not 'cwd' in kw:
-		kw['cwd'] = self.get_cwd()
+		kw['cwd'] = self.generator.bld.variant_dir
 	ret = self.exec_response_command(k[0], **kw)
 	if not ret and getattr(self, 'do_manifest', None):
 		ret = self.exec_mf()
