@@ -32,7 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import os, sys, inspect
 
-VERSION="1.8.18"
+VERSION="1.8.19"
 REVISION="x"
 GIT="x"
 INSTALL="x"

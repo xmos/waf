@@ -1,3 +1,11 @@
+NEW IN WAF 1.8.19
+-----------------
+* Fixed the Intel Fortran compiler detection on Windows systems #1681
+* Fixed the detection of newer Sun compilers #1686
+* Fixed the detection of NAG Fortran compilers #1684
+* Fixed missing variable dependencies of the form ARCH_ST used in ${ARCH_ST:ARCH} expressions
+* Added conf.check(..., comment='some text') to document configuration headers
+
 NEW IN WAF 1.8.18
 -----------------
 * Fixed a regression in exec_cfg() introduced in 1fbac66 #1670
