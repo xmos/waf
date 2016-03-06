@@ -1,3 +1,13 @@
+NEW IN WAF 1.8.20
+-----------------
+* Detection SUN cc compiler version 5.0 #1697
+* Initialize 'VALAFLAGS' with OS flags #1703
+* Convert --perlbinary data to list #1705
+* Cppcheck fixes #1708
+* Boost module enhancements and fixes #1709
+* Various cpplint enhancements #1711
+* Workaround for unreadable home folders
+
 NEW IN WAF 1.8.19
 -----------------
 * Fixed the Intel Fortran compiler detection on Windows systems #1681
