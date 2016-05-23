@@ -1,3 +1,12 @@
+NEW IN WAF 1.8.21
+-----------------
+* Fix for extra lines in windows logs #1715
+* Add commit() method to ConfigSet # 1717
+* Enable manifest node objects in java #1722
+* Identify java tasks more accurately and add build order on non-jar tasks #1725
+* Add PlatformToolset ver. to msvs proj template #1729
+* Enable Colorgcc for other compilers #1732
+
 NEW IN WAF 1.8.20
 -----------------
 * Detection SUN cc compiler version 5.0 #1697
