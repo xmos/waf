@@ -1,7 +1,14 @@
+NEW IN WAF 1.8.22
+-----------------
+* Add -pthread to link jni programs on FreeBSD
+* Add the rest of command flags in ut_exec #1754
+* Fix invalid Doxygen patterns #1751
+* Fix missing backslash for REG_PYTHON_DIR #1746
+
 NEW IN WAF 1.8.21
 -----------------
 * Fix for extra lines in windows logs #1715
-* Add commit() method to ConfigSet # 1717
+* Add commit() method to ConfigSet #1717
 * Enable manifest node objects in java #1722
 * Identify java tasks more accurately and add build order on non-jar tasks #1725
 * Add PlatformToolset ver. to msvs proj template #1729

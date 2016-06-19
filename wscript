@@ -10,7 +10,7 @@ To add a tool that does not exist in the folder compat15, pass an absolute path:
 """
 
 
-VERSION="1.8.21"
+VERSION="1.8.22"
 APPNAME='waf'
 REVISION=''
 
