@@ -5,6 +5,7 @@ NEW IN WAF 1.8.22
 * Fix invalid Doxygen patterns #1751
 * Fix missing backslash for REG_PYTHON_DIR #1746
 * Restore configuration values with Configure.autoconfig='clobber' #1758
+* Let check_swig_version enforce a minimum version number #1760
 
 NEW IN WAF 1.8.21
 -----------------
