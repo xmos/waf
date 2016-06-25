@@ -258,7 +258,7 @@ for z in lst:
 
 	accu.append("%s\n\n.. graphviz::\n\n%s\n\n" % (title, rs))
 
-f = open('tmpmap', 'w')
+f = open('featuremap.rst', 'w')
 f.write(""".. _featuremap:
 
 Feature reference
@@ -303,7 +303,7 @@ for x in confmeths:
 	accu.append('.. _%s: %s#waflib.%s.%s\n' % (x, d, modname, x))
 	accu.append('* %s_\n' % x)
 
-f = open('tmpconf', 'w')
+f = open('confmap.rst', 'w')
 f.write(""".. _confmap:
 
 Configuration methods
