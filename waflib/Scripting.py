@@ -399,7 +399,7 @@ class Dist(Context.Context):
 		except ImportError:
 			from sha import sha
 		try:
-			digest = " (sha=%r)" % sha(node.read()).hexdigest()
+			digest = " (sha=%r)" % sha(node.read(flags='rb')).hexdigest()
 		except Exception:
 			digest = ''
 
