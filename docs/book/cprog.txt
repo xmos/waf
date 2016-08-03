@@ -2,7 +2,7 @@
 
 Although Waf is language neutral, it is used very often for C and C++ projects. This chapter describes the Waf tools and functions used for these languages.
 
-=== Common script for C, C++ and D applications
+=== Common script for C, C++, Fortran and D applications
 
 ==== Predefined task generators
 
@@ -25,15 +25,15 @@ def configure(conf):
 
 def build(bld):
 	bld.program(source='main.c', target='app', use='myshlib mystlib') <2>
-	bld.stlib(source='a.c', target='mystlib') <3>
-	bld.shlib(source='b.c', target='myshlib', use='myobjects') <4>
+	bld.stlib(source='a.c', target='mystlib', use='myobjects') <3>
+	bld.shlib(source='b.c', target='myshlib') <4>
 	bld.objects(source='c.c', target='myobjects')
 ---------------
 
-<1> Use compiler_c to load the c routines and to find a compiler (for c++ use 'compiler_cxx' and 'compiler_d' for d)
-<2> Declare a program built from _main.c_ and using two other libraries
-<3> Declare a static library
-<4> Declare a shared library, using the objects from 'myobjects'
+<1> The extensions compiler_c, compiler_cxx, compiler_fc and compiler_d provide support for the C, C++, Fortran and D languages respectively
+<2> This declares a program built from _main.c_ and using two other libraries
+<3> This declares a static library, using the objects from 'myobjects'
+<4> This declares a shared library
 
 The targets will have different extensions and names depending on the platform. For example on Linux, the contents of the build directory will be:
 
@@ -44,25 +44,49 @@ build/
 |-- c4che
 |   |-- build.config.py
 |   `-- _cache.py
-|-- a.c.1.o
-|-- app <1>
-|-- b.c.2.o
-|-- c.c.3.o
 |-- config.log
-|-- libmyshlib.so <2>
+|-- app <1>
+|-- a.c.1.o <2>
+|-- b.c.2.o
+|-- c.c.3.o <3>
+|-- libmyshlib.so <4>
 |-- libmystlib.a
-`-- main.c.0.o <3>
+`-- main.c.0.o
 ---------------
 
 <1> Programs have no extension on Linux but will have '.exe' on Windows
-<2> The '.so' extension for shared libraries on Linux will be '.dll' on Windows
-<3> The '.o' object files use the original file name and an index to avoid errors in multiple compilations
+<2> Object files suffixes contain a number that is meant to provide some protection against name collisions
+<3> The index value is incremented for each task generator declared in a particular wscript file :footnote:[A particular value can be set in case the build structure cause a collision to occur]
+<4> The '.so' extension for shared libraries on Linux will be '.dll' on Windows or '.dylib' on Mac. These extensions are determined at configuration time.
 
-The build context methods _program_, _shlib_, _stlib_ and _objects_ return a single task generator with the appropriate features detected from the source list. For example, for a program having _.c_ files in the source attribute, the features added will be _"c cprogram"_, for a _d_ static library, _"d dstlib"_.
+The build context methods _program_, _shlib_, _stlib_ and _objects_ are aliases that return a single task generator with the appropriate features detected from the source list. In case more control is required over the linking mode - for example when no source files are given - it may be necessary to fallback to the feature-based declaration. The example above is equivalent to the following:
+
+[source,python]
+---------------
+def build(bld):
+	bld(features='c cprogram', source='main.c', target='app', use='myshlib mystlib')
+	bld(features='c cstlib', source='a.c', target='mystlib', use='myobjects')
+	bld(features='c cshlib', source='b.c', target='myshlib')
+	bld(features='c', source='c.c', target='myobjects')
+---------------
+
+The feature names follow the same pattern where the prefix is the language (c/cxx/fc/d for C, C++, Fortran and D), and the suffix is the target type (program/shlib/stlib for programs, shared libraries and static libraries). Targets mixing several language types typically split source files by language type, but they may be combined in a single declaration:
+
+[source,python]
+---------------
+def options(opt):
+	opt.load('compiler_c compiler_cxx')
+
+def configure(conf):
+	conf.load('compiler_c compiler_cxx')
+
+def build(bld):
+	bld(features='c cxx cxxprogram', source='a.c b.c++', target='app')
+---------------
 
 ==== Additional attributes
 
-The methods described previously can process many more attributes than just 'use'. Here is an advanced example:
+The methods described previously can process many more attributes than just 'use' or features. Here is a longer example:
 
 [source,python]
 ---------------
@@ -76,36 +100,32 @@ def build(bld):
 	bld.program(
 		source       = 'main.c', <1>
 		target       = 'appname', <2>
-		features     = ['more', 'features'], <3>
 
-		includes     = ['.'], <4>
+		includes     = ['.'], <3>
 		defines      = ['LINUX=1', 'BIDULE'],
 
-		lib          = ['m'], <5>
+		lib          = ['m'], <4>
 		libpath      = ['/usr/lib'],
-		stlib        = ['dl'], <6>
-		stlibpath    = ['/usr/local/lib'],
-		linkflags    = ['-g'], <7>
-		rpath        = ['/opt/kde/lib'] <8>
+
+		rpath        = ['/opt/kde/lib'] <5>
 		vnum         = '1.2.3',
 
-		install_path = '${SOME_PATH}/bin', <9>
-		cflags       = ['-O2', '-Wall'], <10>
-		cxxflags     = ['-O3'],
-		dflags       = ['-g'],
+		idx          = 123, <6>
+		install_path = '${SOME_PATH}/bin', <7>
+		cflags       = ['-O2', '-Wall'], <8>
 	)
 ---------------
 
-<1> Source file list
-<2> Target, converted automatically to +target.exe+ or +libtarget.so+, depending on the platform and type
-<3> Additional features to add (for a program consisting in c files, the default will be _'c cprogram'_)
-<4> Includes and defines
-<5> Shared libraries and shared libraries link paths
-<6> Static libraries and link paths
-<7> Use linkflags for specific link flags (not for passing libraries)
-<8> rpath and vnum, ignored on platforms that do not support them
-<9> Programs and shared libraries are installed by default. To disable the installation, set None.
-<10> Miscalleneous flags, applied to the source files that support them (if present)
+<1> Source files are provided as either space-separated file names, or as a list of string/Node objects
+<2> The target is converted automatically to +target.exe+ or +libtarget.so+, depending on the platform and type
+<3> Includes should be provided relative to the current script as the build directory is added as-needed
+<4> For portability reasons, library names should be provided without file extensions
+<5> Certain attributes such as rpath and vnum are ignored on platforms that do not support them
+<6> Setting the counter for the object file extension is sometimes necessary to avoid object file name collisions
+<7> Programs and shared libraries are installed by default. To disable the installation, set None.
+<8> Miscellaneous flags, applied to the source files that support them (if present)
+
+One drawback of of passing flags such as *cflags* directly is that the wscript files need to be modified when such flags are changed. The section on the *use* system describes how to leverage configuration variables to propagate such flags.
 
 === Include processing
 
@@ -135,29 +155,30 @@ def build(bld):
         includes = '.. .')
 ---------------
 
-The command-line (output by `waf -v`) will have the following form:
+The command-line (output by `waf -v`) will have a form similar to the following:
 
 [source,shishell]
 ---------------
 cc -I. -I.. -Isrc -I../src ../src/main.c -c -o src/main_1.o
 ---------------
 
-Because commands are executed from the build directory, the folders have been converted to include flags in the following way:
+This command contains the include paths as seen from the build directory:
 
 [source,shishell]
 ---------------
-.. -> -I..      -I.
-.  -> -I../src  -Isrc
+.. -> -I..      and  -I.
+.  -> -I../src  and  -Isrc
 ---------------
 
-There are the important points to remember:
+The most important points to remember are:
 
-. The includes are always given relative to the directory containing the wscript file
-. The includes add both the source directory and the corresponding build directory for the task generator variant
-. Commands are executed from the build directory, so the include paths must be converted
-. System include paths should be defined during the configuration and added to INCLUDES variables (uselib)
+. Includes paths are given relative to the directory containing the wscript file. Providing absolute paths are best avoided as they are a source of portability problems.
+. The includes add both the source directory and the corresponding build directory for the task generator variant. Hard-coding the build directory is best avoided.
+. System include paths are best defined during the configuration and added to INCLUDES variables (uselib)
 
-==== The Waf preprocessor
+==== Headers and dependencies
+
+===== Waf preprocessor
 
 Waf uses a preprocessor written in Python for adding the dependencies on the headers. A simple parser looking at #include statements would miss constructs such as:
 
@@ -167,14 +188,7 @@ Waf uses a preprocessor written in Python for adding the dependencies on the hea
 #include mymacro
 ---------------
 
-Using the compiler for finding the dependencies would not work for applications requiring file preprocessing such as Qt. For Qt, special include files having the '.moc' extension must be detected by the build system and produced ahead of time. The c compiler could not parse such files.
-
-[source,c]
----------------
-#include "foo.moc"
----------------
-
-Since system headers are not tracked by default, the waf preprocessor may miss dependencies written in the following form:
+System headers are not tracked by default for performance reasons, so the preprocessor can miss dependencies obtained through external macros (boost):
 
 [source,c]
 ---------------
@@ -184,7 +198,7 @@ Since system headers are not tracked by default, the waf preprocessor may miss d
 #endif
 ---------------
 
-To write portable code and to ease debugging, it is strongly recommended to put all the conditions used within a project into a 'config.h' file.
+To write portable code and to ease debugging, it is recommended to put all the conditions used within a project into a 'config.h' file.
 
 [source,python]
 ---------------
@@ -196,7 +210,33 @@ def configure(conf):
 	conf.write_config_header('config.h')
 ---------------
 
-For performance reasons, the implicit dependency on the system headers is ignored by default. The following code may be used to enable this behaviour:
+===== Generated headers
+
+Dependencies are obtained on generated headers, but this requires declaring the headers as output files:
+
+[source,python]
+---------------
+def create_header(tsk):
+	tsk.outputs[0].write('int abc = 12;\n')
+bld(
+	rule     = create_header,
+	target   = 'b.h', <1>
+	ext_out  = ['.h']) <2>
+
+tg = bld.program(
+	features = 'app',
+	source   = 'main.c',
+	includes = '.', <3>
+	target   = 'myprogram')
+---------------
+
+<1> All headers created by the build must be declared. If the build generates a lot of headers with arbitrary names, an alternative is to compute a hash and set a value to *env.CCDEPS* to obtain rebuilds.
+<2> While optional, build tasks that create headers should indicate that header files are generated in order to improve build performance
+<3> Include paths must be provided in such variables and not as *cflags* for instance
+
+===== Performance concerns
+
+If performance is not a concern, then dependencies can be computed on system headers by setting the following:
 
 [source,python]
 ---------------
@@ -204,18 +244,9 @@ from waflib import c_preproc
 c_preproc.go_absolute = True
 ---------------
 
-Additional tools such as https://github.com/waf-project/waf/blob/master/waflib/extras/gccdeps.py[gccdeps] or https://github.com/waf-project/waf/blob/master/waflib/extras//dumbpreproc.py[dumbpreproc] provide alternate dependency scanners that can be faster in certain cases (boost).
+Additional tools such as https://github.com/waf-project/waf/blob/master/waflib/extras/gccdeps.py[gccdeps], https://github.com/waf-project/waf/blob/master/waflib/extras/msvcdeps.py[msvcdeps] or https://github.com/waf-project/waf/blob/master/waflib/extras/dumbpreproc.py[dumbpreproc] provide alternate dependency scanners that can be faster in certain cases (boost). Such extensions still require proper include paths and header declaration in order to avoid race conditions in the build system.
 
-NOTE: The Waf engine will detect if tasks generate headers necessary for the compilation and compute the build order accordingly. It may sometimes improve the performance of the scanner if the tasks creating headers provide the hint 'ext_out=[".h"]'.
-
-==== Dependency debugging
-
-The Waf preprocessor contains a specific debugging zone:
-
-[source,shishell]
----------------
-$ waf --zones=preproc
----------------
+===== Dependency troubleshooting
 
 To display the dependencies obtained or missed, use the following:
 
@@ -228,13 +259,18 @@ $ waf --zones=deps
   unresolved ['QtGui', 'QGLWidget', 'QWidget'] <3>
 ---------------
 
-<1> File being preprocessed
-<2> Headers found
-<3> System headers discarded
+<1> File preprocessed
+<2> List of headers found
+<3> System headers discarded or missing dependencies
 
-The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.
+The Waf preprocessor also provides a specific debug zone which may be useful for troubleshooting complex macros:
 
-NOTE: The scanner is only called when C files or dependencies change. In the rare case of adding headers after a successful compilation, then it may be necessary to run 'waf clean build' to force a full scanning.
+[source,shishell]
+---------------
+$ waf --zones=preproc
+---------------
+
+NOTE: The scanner is only called when C files or dependencies are modified. In the rare case of adding headers after a successful compilation, then it may be necessary to run 'waf clean build' to force a full dependency re-scan.
 
 === Library interaction (use)
 
@@ -344,7 +380,7 @@ To sum up the two most important aspects of the 'use' attribute:
 
 ===== Includes folders
 
-The use keywork may point at special libraries that do not actually declare a target. For example, header-only libraries are commonly used to add specific include paths to several targets:
+The use keyword may point at special libraries that do not actually declare a target. For example, header-only libraries are commonly used to add specific include paths to several targets:
 
 // cprog_incdirs
 [source,python]
@@ -401,7 +437,7 @@ def build(bld):
 <3> The objects will be added automatically in the link stage
 <4> There is no object propagation to other programs or libraries to avoid duplicate symbol errors
 
-WARNING: Like static libraries, object files are often abused to copy-paste binary code. Try to minimize the executables size by using shared libraries whenever possible.
+WARNING: Like static libraries, object files are often abused to copy-paste binary code which can lead to huge binaries and obscure crashes. Try to minimize executable size by using shared libraries whenever possible.
 
 ===== Fake libraries
 
@@ -435,7 +471,7 @@ def configure(conf):
 
 	if sys.platform != 'win32': <2>
 		conf.env.DEFINES_TEST   = ['TEST']
-		conf.env.CFLAGS_TEST   = ['-O0'] <3>
+		conf.env.CFLAGS_TEST    = ['-O0'] <3>
 		conf.env.LIB_TEST       = ['m']
 		conf.env.LIBPATH_TEST   = ['/usr/lib']
 		conf.env.LINKFLAGS_TEST = ['-g']
@@ -467,12 +503,15 @@ The variables used for C/C++ are the following:
 |LIBPATH  |libpath  | list of search path for shared libraries
 |STLIB    |stlib    | list of static library names to use, without prefix or extension
 |STLIBPATH|stlibpath| list of search path for static libraries
-|LINKFLAGS|linkflags| list of link flags (use other variables whenever possible)
+|LINKFLAGS|linkflags| list of link flags (prefer other variables whenever possible)
+|LDFLAGS  |ldflags  | list of link flags at the end of the link command (prefer other variables)
 |RPATH    |rpath    | list of paths to hard-code into the binary during linking time
 |CFLAGS   |cflags   | list of compilation flags for c files
 |CXXFLAGS |cxxflags | list of compilation flags for c++ files
+|CPPFLAGS |cppflags | list of flags added at the end of compilation commands (C/C++/Fortran modes)
+|FCFLAGS  |fcflags  | list of fortran compilation flags
 |DFLAGS   |dflags   | list of compilation flags for d files
-|INCLUDES |includes | include paths
+|INCLUDES |includes | include paths, best given as a list of Node objects
 |CXXDEPS  |         | a variable/list to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
 |LINKDEPS |         | same as above, for the link tasks
