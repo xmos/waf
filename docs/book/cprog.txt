@@ -2,7 +2,7 @@
 
 Although Waf is language neutral, it is used very often for C and C++ projects. This chapter describes the Waf tools and functions used for these languages.
 
-=== Common script for C, C++, Fortran and D applications
+=== Common declaration for C, C++, Fortran and D applications
 
 ==== Predefined task generators
 
@@ -797,4 +797,72 @@ After such a configuration, the configuration set contents will be similar to th
 'PREFIX' '/usr/local'
 'define_key' ['HAVE_PANGO', 'HAVE_MYPANGO', 'HAVE_SDL', 'HAVE_OPEN_MPI']
 ---------------
+
+=== Extensions
+
+==== Additional tools
+
+Additional C or C++ tools may be included in the Waf file and loaded to detect compilers ahead of the Waf ones.
+For this, the Waf tools such as *compiler_fc* load all files that start by the *fc_* prefix automatically.
+
+It is thus necessary to include extensions as part of `waflib/extras` by building a custom waf file:
+
+[source,shishell]
+---------------
+./waf-light --tools=fc_bgxlf
+---------------
+
+The extension then only needs to inserts itself in the list of modules to use for a particular platform. This Fortran module provides for example:
+
+[source,python]
+---------------
+from waflib.Tools.compiler_fc import fc_compiler
+fc_compiler['linux'].insert(0, 'fc_bgxlf')
+---------------
+
+==== Cross-compilation concerns
+
+===== Simple cross builds using environment variables
+
+In general, cross builds do not require building host compilers can be performed by setting
+environment variables such as CFLAGS, LINKFLAGS, CC and AR:
+
+[source,shishell]
+---------------
+CC=/path/to/gcc waf configure build
+---------------
+
+===== Staged cross-compilation builds
+
+Such builds typically require some preparation from the project maintainers.
+While https://github.com/waf-project/waf/blob/master/waflib/extras/cfg_cross_gnu.py[certain extensions] exist, it is
+usually best to set config sets for the host and target builds, and then update the target build environment variables
+that need changing:
+
+[source,python]
+---------------
+def configure(conf):
+	conf.setenv('host')
+	conf.setenv('target') <1>
+
+	conf.setenv('host')
+	conf.load('gcc') <2>
+
+	conf.setenv('target') <3>
+	conf.env.CC = ['/opt/arm/bin/gcc'] <4>
+	conf.gcc_modifier_win32()
+
+def build(bld):
+	bld.env = bld.all_envs['host']
+	bld.program(source='main.c', target='app', install_path=None)
+	bld.add_group()
+	bld.env = bld.all_envs['target'] <5>
+	bld.program(source='main.c', target='app')
+---------------
+
+<1> Make environment copies
+<2> Configure for the host builds
+<3> Configure the target data
+<4> Set relevant variables
+<5> Declare target with the appropriate configuration data
 
