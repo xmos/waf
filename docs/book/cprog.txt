@@ -56,7 +56,7 @@ build/
 
 <1> Programs have no extension on Linux but will have '.exe' on Windows
 <2> Object files suffixes contain a number that is meant to provide some protection against name collisions
-<3> The index value is incremented for each task generator declared in a particular wscript file :footnote:[A particular value can be set in case the build structure cause a collision to occur]
+<3> The index value is incremented for each task generator declared in a particular wscript file footnote:[A particular idx value can be forced in order to prevent name collisions]
 <4> The '.so' extension for shared libraries on Linux will be '.dll' on Windows or '.dylib' on Mac. These extensions are determined at configuration time.
 
 The build context methods _program_, _shlib_, _stlib_ and _objects_ are aliases that return a single task generator with the appropriate features detected from the source list. In case more control is required over the linking mode - for example when no source files are given - it may be necessary to fallback to the feature-based declaration. The example above is equivalent to the following:
@@ -230,7 +230,7 @@ tg = bld.program(
 	target   = 'myprogram')
 ---------------
 
-<1> All headers created by the build must be declared. If the build generates a lot of headers with arbitrary names, an alternative is to compute a hash and set a value to *env.CCDEPS* to obtain rebuilds.
+<1> All headers created by the build must be declared. footnote:[If the build generates a lot of headers with arbitrary names, a brute-force approach to obtain rebuilds can be to compute and assign a hash to *env.CCDEPS*]
 <2> While optional, build tasks that create headers should indicate that header files are generated in order to improve build performance
 <3> Include paths must be provided in such variables and not as *cflags* for instance
 
