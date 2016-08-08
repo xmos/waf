@@ -140,7 +140,7 @@ def build(bld):
 
 	bld.add_group() # separator, the documents may require any of the pictures from above
 
-	bld(rule='${ADOC} -a icons=true -b html5 -a stylesheet=${SRC[1].abspath()} -a iconsdir=. -a toc -d book -o ${TGT} ${SRC[0].abspath()}',
+	bld(rule='${ADOC} -a icons=true -b html5 -a stylesheet=${SRC[1].abspath()} -a iconsdir=. -a toc2 -a max-width=55em -d book -o ${TGT} ${SRC[0].abspath()}',
 		source='waf_.txt waf.css', target='index.html', scan=ascii_doc_scan)
 
 	if True:
