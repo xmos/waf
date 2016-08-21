@@ -286,23 +286,27 @@ To obtain a build node from a src node and vice-versa, the following methods may
 
 ==== Using Nodes during the build phase
 
-Although using _srcnode_ and _bldnode_ directly is possible, the three following wrapper methods are much easier to use. They accept a string representing the target as input and return a single node:
+Although using _find_node_/_search_node_/_make_node_ directly is possible, the following two wrappers provide significant simplifications. They accept a string representing the target as input and return a single node:
 
-. *find_dir*: returns a node or None if the folder cannot be found on the system.
-. *find_resource*: returns a node under the source directory, a node under the corresponding build directory, or None if no such a node exists. If the file is not in the build directory, the node signature is computed and put into a cache (file contents hash).
-. *find_or_declare*: returns a node or create the corresponding node in the build directory.
+. *find_resource*: This method first iterates in the source directory to obtain a file corresponding to the input path given. If not such file is found, it then tries to obtain a declared node from the corresponding path under the build directory. If no source file or build node is found then None is returned.
+. *find_or_declare*: Returns a Node object under the source or build folders. If nothing is found, it creates the corresponding node in the build directory and the folder structure required for writing the file during the build phase. If the path is not under the build directory, then a fake filesystem structure is created for the output files (`__root__`).
 
-Besides, they all use _find_dir_ internally which will create the required directory structure in the build directory. Because the folders may be replicated in the build directory before the build starts, it is recommended to use it whenever possible:
+Waf uses these two methods internally; in order to avoid ambiguities, it is recommended simplify paths and in particular to resolve '..' elements that could cause the object lookup to get out of the source or build folders. The following example is assumed to be defined in the source directory:
 
 [source,python]
 ---------------
+top = '.'
+out = 'build'
+
 def build(bld):
-    p = bld.path.parent.find_dir('src') <1>
-    p = bld.path.find_dir('../src') <2>
+    p = bld.path.find_or_declare('../c/foo.txt') <1>
+    p = bld.path.parent.find _node('c').find_or_declare('foo.txt') <2>
+
+    bld(rule='cp ${SRC} ${TGT}', source='wscript', target=p)
 ---------------
 
-<1> Not recommended, use _find_dir_ instead
-<2> Path separators are converted automatically according to the platform.
+<1> This ambiguous construct declares `c/foo.txt` in the source directory
+<2> With paths properly resolved, this declares the proper file under the build directory `build/c/foo.txt`
 
 ==== Nodes, tasks, and task generators
 
