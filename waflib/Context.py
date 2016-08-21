@@ -11,13 +11,13 @@ from waflib import Utils, Errors, Logs
 import waflib.Node
 
 # the following 3 constants are updated on each new release (do not touch)
-HEXVERSION=0x1090200
+HEXVERSION=0x1090300
 """Constant updated on new releases"""
 
-WAFVERSION="1.9.2"
+WAFVERSION="1.9.3"
 """Constant updated on new releases"""
 
-WAFREVISION="8e68aa4ade4c12b7ed363d7709c246e9258f4462"
+WAFREVISION="52d3de11633f64c7755d6871f0a16403805f4297"
 """Git revision when the waf version is updated"""
 
 ABI = 99
