@@ -175,53 +175,35 @@ class task_gen(object):
 			elif not x in Task.classes:
 				Logs.warn('feature %r does not exist - bind at least one method to it?', x)
 
-		# copy the precedence table
-		prec = {}
-		prec_tbl = self.prec
-		for x in prec_tbl:
-			if x in keys:
-				prec[x] = prec_tbl[x]
-
-		# elements disconnected
-		tmp = []
-		for a in keys:
-			for x in prec.values():
-				if a in x: break
-			else:
-				tmp.append(a)
-
-		tmp.sort()
-
-		# topological sort
+		stack = []
+		grey = set()
+		black = set()
 		out = []
-		while tmp:
-			e = tmp.pop()
-			if e in keys:
-				out.append(e)
-			try:
-				nlst = prec[e]
-			except KeyError:
-				pass
-			else:
-				del prec[e]
-				for x in nlst:
-					for y in prec:
-						if x in prec[y]:
-							break
-					else:
-						tmp.append(x)
 
-		if prec:
-			buf = ['Cycle detected in the method execution:']
-			for k, v in prec.items():
-				buf.append('- %s after %s' % (k, [x for x in v if x in prec]))
-			raise Errors.WafError('\n'.join(buf))
-		out.reverse()
+		def visit(vertex):
+			if vertex in grey:
+				buf = ['Circular method dependency:']
+				for xx in grey:
+					lst = [x for x in self.prec.get(xx) if x in grey]
+					buf.append('- %r after %r' % (xx, lst))
+				raise Errors.WafError('\n'.join(buf))
+
+			grey.add(vertex)
+
+			xxx = self.prec.get(vertex)
+			if xxx:
+				for d in xxx:
+					if d in keys and not d in black:
+						visit(d)
+			black.add(vertex)
+			grey.remove(vertex)
+			out.append(vertex)
+
 		self.meths = out
 
 		# then we run the methods in order
 		Logs.debug('task_gen: posting %s %d', self, id(self))
-		for x in out:
+		for x in result:
 			try:
 				v = getattr(self, x)
 			except AttributeError:
@@ -432,7 +414,7 @@ def before_method(*k):
 		for fun_name in k:
 			if not func.__name__ in task_gen.prec[fun_name]:
 				task_gen.prec[fun_name].append(func.__name__)
-				#task_gen.prec[fun_name].sort()
+				task_gen.prec[fun_name].sort()
 		return func
 	return deco
 before = before_method
@@ -461,10 +443,11 @@ def after_method(*k):
 		for fun_name in k:
 			if not fun_name in task_gen.prec[func.__name__]:
 				task_gen.prec[func.__name__].append(fun_name)
-				#task_gen.prec[func.__name__].sort()
+				task_gen.prec[func.__name__].sort()
 		return func
 	return deco
 after = after_method
+
 
 def extension(*k):
 	"""
