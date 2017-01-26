@@ -221,13 +221,11 @@ def build(ctx):
 	print(bld.abspath())
 	print(dir.abspath())
 	print(src.path_from(dir.parent)) <3>
-	print(ctx.root.path_from(src)) <4>
 ---------------
 
 <1> Directory node, source node and build node
 <2> Print the absolute path
 <3> Compute the path relative to another node
-<4> Compute the relative path in reverse order
 
 Here is the execution trace on a unix-like system:
 
@@ -239,10 +237,8 @@ $ waf distclean configure build
 Waf: Entering directory `/tmp/nested/build'
 /tmp/nested/wscript
 /tmp/nested/build/out.out
-/tmp/nested/build/
 /tmp/nested
 nested/wscript
-../../../..
 Waf: Leaving directory `/tmp/nested/build'
 'build' finished successfully (0.003s)
 ---------------
