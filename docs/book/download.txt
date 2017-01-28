@@ -12,7 +12,7 @@ The downloads and most project commits are signed with the https://raw.githubuse
 
 [source,shishell]
 ---------------
-$ wget https://waf.io/waf-{version} waf
+$ curl -o waf https://waf.io/waf-{version}
 $ python verify-sig.py waf
 ---------------
 
@@ -20,8 +20,8 @@ $ python verify-sig.py waf
 
 [source,shishell]
 ---------------
-$ wget https://waf.io/waf-{version}.tar.bz2
-$ wget https://waf.io/waf-{version}.tar.bz2.asc
+$ curl -o waf-{version}.tar.bz2 https://waf.io/waf-{version}.tar.bz2
+$ curl -o waf-{version}.tar.bz2.asc https://waf.io/waf-{version}.tar.bz2.asc
 $ gpg --verify waf-{version}.tar.bz2.asc
 ---------------
 
@@ -104,7 +104,7 @@ Building Waf requires a Python interpreter having a version number in the range 
 
 [source,shishell]
 ---------------
-$ wget https://waf.io/waf-{version}.tar.bz2
+$ curl -o waf-{version}.tar.bz2 https://waf.io/waf-{version}.tar.bz2
 $ tar xjvf waf-{version}.tar.bz2
 $ cd waf-{version}
 $ ./waf-light
