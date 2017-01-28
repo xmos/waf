@@ -45,7 +45,7 @@ It provides its own library compressed as a binary stream within the file. Upon 
 
 [source,shishell]
 ---------------
-$ python waf-{version} --help
+$ python waf --help
 $ ls -ld .waf*
 .waf-{version}-2c924e3f453eb715218b9cc852291170
 ---------------
