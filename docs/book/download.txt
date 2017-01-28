@@ -12,8 +12,8 @@ The downloads and most project commits are signed with the https://raw.githubuse
 
 [source,shishell]
 ---------------
-$ wget https://waf.io/waf-{version}
-$ ./waf/utils/verify-sig.py waf-{version}
+$ wget https://waf.io/waf-{version} waf
+$ python verify-sig.py waf
 ---------------
 
 - The source distribution provides a signature file for its archive:
@@ -33,7 +33,7 @@ $ git clone https://github.com/waf-project/waf.git
 $ cd waf/
 $ git show --show-signature
 commit b73ccba03cd5f34b40a36e1d60b6a082a04cd563
-gpg: Signature made sam. 16 jul. 2016 17:31:19 CEST
+gpg: Signature made sam. 16 jul. 2017 17:31:19 CEST
 gpg:                using RSA key 0x49B4C67C05277AAA
 ...
 ---------------
@@ -50,13 +50,11 @@ $ ls -ld .waf*
 .waf-{version}-2c924e3f453eb715218b9cc852291170
 ---------------
 
-No installation is necessary, but the Python interpreter must feature a http://docs.python.org/library/bz2.html[bzip2 decompressor]; if this module is missing, then it may be necessary to use the build Waf from source (consult the next sections).
+No installation is necessary, but the Python interpreter must feature a http://docs.python.org/library/bz2.html[bzip2 decompressor]; if this module is missing, then it may be necessary to build Waf from source (consult the next sections). The folder containing the waf file must also be writable so that the waf file can uncompress its library.
 
-Additionally, the folder containing the waf file must be writable; if this is not possible, an alternative is to point the environment variable _WAFDIR_ to the folder containing the directory named https://github.com/waf-project/waf/tree/master/waflib[waflib].
+If the above conditions are not met, an alternative is to point the environment variable _WAFDIR_ to the folder containing the directory named https://github.com/waf-project/waf/tree/master/waflib[waflib]. Though this waflib folder may be provided as part of project source files, the files cannot run in both Python 2 and Python 3 at the same time, so this is generally discouraged.
 
-Another possibility consists in providing the waf files in a visible folder, which may then be kept under a version control solution such as Git. For instance, the +waf-light+ script does not contain the waf library, but can be used in the same way as waf if the waflib folder is present.
-
-The following diagram represents the process used to find the +waflib+ directory:
+The following diagram depicts how the +waflib+ directory is discovered:
 
 image::waflib{PIC}["Waflib discovery"{backend@docbook:,width=450:},align="center"]
 
