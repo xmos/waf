@@ -578,7 +578,8 @@ def configure(conf):
 	Detect the python interpreter
 	"""
 	v = conf.env
-	v['PYTHON'] = Options.options.python or os.environ.get('PYTHON', sys.executable)
+	if not v.PYTHON:
+		v.PYTHON = Options.options.python or os.environ.get('PYTHON', sys.executable)
 	if Options.options.pythondir:
 		v['PYTHONDIR'] = Options.options.pythondir
 	if Options.options.pythonarchdir:
