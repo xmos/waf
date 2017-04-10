@@ -462,7 +462,7 @@ def find_program(self, filename, **kw):
 	else:
 		path_list = environ.get('PATH', '').split(os.pathsep)
 
-	if var in environ:
+	if environ.get(var):
 		filename = environ[var]
 		if os.path.isfile(filename):
 			# typical CC=/usr/bin/gcc waf configure build
