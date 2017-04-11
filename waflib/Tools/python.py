@@ -580,9 +580,10 @@ def configure(conf):
 	v = conf.env
 	if not v.PYTHON:
 		v.PYTHON = Options.options.python or os.environ.get('PYTHON', sys.executable)
-	if Options.options.pythondir:
+	v.PYTHON = Utils.to_list(v.PYTHON)
+	if getattr(Options.options, 'pythondir', None):
 		v['PYTHONDIR'] = Options.options.pythondir
-	if Options.options.pythonarchdir:
+	if getattr(Options.options, 'pythonarchdir', None):
 		v['PYTHONARCHDIR'] = Options.options.pythonarchdir
 
 	conf.find_program('python', var='PYTHON')
