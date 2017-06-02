@@ -511,7 +511,7 @@ The variables used for C/C++ are the following:
 |CPPFLAGS |cppflags | list of flags added at the end of compilation commands (C/C++/Fortran modes)
 |FCFLAGS  |fcflags  | list of fortran compilation flags
 |DFLAGS   |dflags   | list of compilation flags for d files
-|INCLUDES |includes | include paths, best given as a list of Node objects
+|INCLUDES |includes | include paths (absolute paths or Node objects). footnote:[For performance reasons, Node objects should be passed in includes/INCLUDES in the build phase. Yet, env objects containing Node objects are not serializable, so this technique cannot be used in the configuration phase]
 |CXXDEPS  |         | a variable/list to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
 |LINKDEPS |         | same as above, for the link tasks
