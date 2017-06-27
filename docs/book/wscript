@@ -31,7 +31,7 @@ def ascii_doc_scan(self):
 			name = m.group(2)
 			if m.group(3) == '{PIC}':
 
-				ext = '.svg'
+				ext = '.svgz'
 				if self.generator.rule.rfind('A2X') > 0:
 					ext = '.pdf'
 
@@ -105,17 +105,18 @@ def build(bld):
 		#bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} -density 600 ${SRC} ${TGT}', source=x, target=x.change_ext('.png'), scan=scansize)
 
 		bld(rule='${EPSTOPDF} ${SRC} --outfile=${TGT}', source=x, target=x.change_ext('.pdf'), scan=scansize)
-		bld(rule='${PDF2SVG} ${SRC} ${TGT}', source=x.change_ext('.pdf'), target=x.change_ext('.svg'), scan=scansize)
+		bld(rule='${PDF2SVG} ${SRC} ${TGT}', source=x.change_ext('.pdf'), target=x.change_ext('.svgz'), scan=scansize)
 
 	for x in bld.path.ant_glob('*.dot'):
 		#tg = bld(rule='${DOT} -Teps -o${TGT} ${SRC}', source=x, target=x.change_ext('.eps'))
-		tg = bld(rule='${DOT} -Tsvg -o${TGT} ${SRC}', source=x, target=x.change_ext('.svg'))
+		tg = bld(rule='${DOT} -Tsvgz -o${TGT} ${SRC}', source=x, target=x.change_ext('.svgz'))
 		tg = bld(rule='${DOT} -Tpdf -o${TGT} ${SRC}', source=x, target=x.change_ext('.pdf'))
 		#tg = bld(rule='${DOT} -Tpng -o${TGT} ${SRC}', source=x, target=x.change_ext('.png'), scan=scansize)
 		#tg = bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=x.change_ext('.eps'), target=x.change_ext('.png'), scan=scansize)
 
 	for x in bld.path.ant_glob('*.semd'):
-		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()}', source=x, target=x.change_ext('.svg'))
+		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()} && convert ${TGT[0].abspath()} ${TGT[1].abspath()}',
+			source=x, target=[x.change_ext('.svg'), x.change_ext('.svgz')])
 		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()}', source=x, target=x.change_ext('.pdf'))
 
 	for x in bld.path.ant_glob('pics/*.png'):
