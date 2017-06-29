@@ -145,7 +145,7 @@ def build(bld):
 		source='waf_.txt waf.css', target='index.html', scan=ascii_doc_scan)
 
 	if True:
-		bld(rule='${A2X} -L -a toc --icons-dir=. --icons -d book -f pdf --dblatex-opts "-s ${SRC[1].abspath()} -p ${SRC[2].abspath()} -o ${TGT}" ${SRC[0].bldpath()}',
+		bld(rule='${A2X} -v -L -a toc --icons-dir=. --icons -d book -f pdf --dblatex-opts "-s ${SRC[1].abspath()} -p ${SRC[2].abspath()} -o ${TGT}" ${SRC[0].bldpath()}',
 		shell=True,
 		source='waf_.txt asciidoc-dblatex.sty asciidoc-dblatex.xsl', target='waf.pdf', scan=ascii_doc_scan)
 

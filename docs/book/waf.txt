@@ -4,7 +4,7 @@ The Waf Book
 :quotes.++:
 :numbered!:
 
-{set:PIC:{backend@docbook:.pdf:.svgz}}
+{set:PIC:{basebackend@docbook:.pdf:.svgz}}
 
 [preface]
 == Introduction
