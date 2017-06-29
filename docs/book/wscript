@@ -115,7 +115,7 @@ def build(bld):
 		#tg = bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=x.change_ext('.eps'), target=x.change_ext('.png'), scan=scansize)
 
 	for x in bld.path.ant_glob('*.semd'):
-		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()} && convert ${TGT[0].abspath()} ${TGT[1].abspath()}',
+		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()} && gzip -S z -k ${TGT[0].abspath()} ',
 			source=x, target=[x.change_ext('.svg'), x.change_ext('.svgz')])
 		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()}', source=x, target=x.change_ext('.pdf'))
 
