@@ -105,7 +105,8 @@ def build(bld):
 		#bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} -density 600 ${SRC} ${TGT}', source=x, target=x.change_ext('.png'), scan=scansize)
 
 		bld(rule='${EPSTOPDF} ${SRC} --outfile=${TGT}', source=x, target=x.change_ext('.pdf'), scan=scansize)
-		bld(rule='${PDF2SVG} ${SRC} ${TGT}', source=x.change_ext('.pdf'), target=x.change_ext('.svgz'), scan=scansize)
+		bld(rule='${PDF2SVG} ${SRC} ${TGT[0].abspath()} && gzip -S z -fk ${TGT[0].abspath()}',
+			source=x.change_ext('.pdf'), target=[x.change_ext('.svg'), x.change_ext('.svgz')], scan=scansize)
 
 	for x in bld.path.ant_glob('*.dot'):
 		#tg = bld(rule='${DOT} -Teps -o${TGT} ${SRC}', source=x, target=x.change_ext('.eps'))
@@ -115,7 +116,7 @@ def build(bld):
 		#tg = bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=x.change_ext('.eps'), target=x.change_ext('.png'), scan=scansize)
 
 	for x in bld.path.ant_glob('*.semd'):
-		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()} && gzip -S z -k ${TGT[0].abspath()} ',
+		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()} && gzip -S z -fk ${TGT[0].abspath()} ',
 			source=x, target=[x.change_ext('.svg'), x.change_ext('.svgz')])
 		bld(rule='${SEMANTIK_D} ${SRC[0].abspath()} -o ${TGT[0].abspath()}', source=x, target=x.change_ext('.pdf'))
 
