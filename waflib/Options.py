@@ -262,8 +262,8 @@ class OptionsContext(Context.Context):
 		if options.destdir:
 			options.destdir = Utils.sane_path(options.destdir)
 
-		if options.verbose >= 1:
-			self.load('errcheck')
+		# if options.verbose >= 1:
+		# 	self.load('errcheck')
 
 		colors = {'yes' : 2, 'auto' : 1, 'no' : 0}[options.colors]
 		Logs.enable_colors(colors)
